@@ -1,6 +1,6 @@
 const { promisify } = require("util");
 const pkgcloud = require("pkgcloud");
-const { find } = require("lodash");
+const { find, assign } = require("lodash");
 
 function handleServerResponse(err, server) {
   if (err) {
@@ -24,12 +24,41 @@ function handleServerResponse(err, server) {
 }
 
 function createClient(opts) {
-  const client = pkgcloud.providers.openstack.compute.createClient(opts);
+  const computeClient = pkgcloud.providers.openstack.compute.createClient(opts);
+  const networkClient = pkgcloud.providers.openstack.network.createClient(opts);
 
-  const getServers = promisify(client.getServers.bind(client));
-  const getFlavors = promisify(client.getFlavors.bind(client));
-  const getImages = promisify(client.getImages.bind(client));
-  const getNetworks = promisify(client.getNetworks.bind(client));
+  const getServers = promisify(computeClient.getServers.bind(computeClient));
+  const getFlavors = promisify(computeClient.getFlavors.bind(computeClient));
+  const getImages = promisify(computeClient.getImages.bind(computeClient));
+  const getNetworks = promisify(computeClient.getNetworks.bind(computeClient));
+
+  const createSubnet = promisify(
+    networkClient.createSubnet.bind(networkClient)
+  );
+  const getNetwork = promisify(networkClient.getNetwork.bind(networkClient));
+
+  function createNetwork(network) {
+    networkClient.createNetwork(network, (err, net) => {
+      return new Promise((resolve, reject) => {
+        if (err) {
+          reject(err);
+        } else {
+          const subnets = network.subnets || [];
+          const subs = subnets.map(subnet => {
+            const s = assign(
+              {
+                networkId: net.id,
+                ipVersion: 4
+              },
+              subnet
+            );
+            return createSubnet(s);
+          });
+          Promise.all(subs).then(getNetwork(net)).catch(console.error);
+        }
+      });
+    });
+  }
 
   function createServer(server) {
     Promise.all([
@@ -48,7 +77,7 @@ function createClient(opts) {
         flavor: flavor,
         networks: [network]
       };
-      client.createServer(opts, handleServerResponse);
+      computeClient.createServer(opts, handleServerResponse);
     });
   }
 
@@ -57,7 +86,8 @@ function createClient(opts) {
     getFlavors,
     getImages,
     getNetworks,
-    createServer
+    createServer,
+    createNetwork
   };
 }
 

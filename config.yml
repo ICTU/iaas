@@ -1,0 +1,19 @@
+networks:
+  - name: net-1
+    adminStateUp : true
+    subnets:
+      - name: subnet-1
+        gatewayIp : 100.100.0.254
+        cidr: 100.100.0.0/24
+        enableDhcp : true
+
+servers:
+  - name: server-1
+    flavor: m1.medium
+    image: CentOS7.1
+    network: net-1
+
+  - name: server-2
+    flavor: m1.medium
+    image: CentOS7.1
+    network: net-1

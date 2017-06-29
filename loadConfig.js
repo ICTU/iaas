@@ -2,5 +2,9 @@ yaml = require("js-yaml");
 fs = require("fs");
 
 module.exports = function load(file) {
-  return yaml.safeLoad(fs.readFileSync(file, "utf8"));
+  const config = yaml.safeLoad(fs.readFileSync(file, "utf8")) || {};
+  return {
+    servers: config.servers || [],
+    networks: config.networks || []
+  };
 };

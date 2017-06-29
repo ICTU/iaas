@@ -1,9 +1,0 @@
-- name: server-1
-  flavor: m1.medium
-  image: CentOS7.1
-  network: TestNetwork1
-
-- name: server-2
-  flavor: m1.medium
-  image: CentOS7.1
-  network: TestNetwork1
