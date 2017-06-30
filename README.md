@@ -1,5 +1,5 @@
-After cloning this project, update the config.yml (or create a new file) and run with
+Run with
 
 ```
-OS_USERNAME=<openstack username> OS_PASSWORD=<openstack password> OS_AUTH_URL=<openstack auth url> OS_REGION=<openstack region> npm start config.yml
-```
+# to create the port with a fixed ip
+ansible-playbook -i "127.0.0.1," create-os-all.yml  --extra-vars=@vars.yml --extra-vars='{"odcn": {"auth_url": "<os auth url>", "username": "<os username>", "password": "<os password>", "project_name": "ICTU"}}'

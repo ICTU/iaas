@@ -1,0 +1,8 @@
+---
+
+- hosts: all
+  vars:
+    ansible_python_interpreter: "/usr/bin/env python"
+  tasks:
+    - include: create-os-port.yml
+    - include: create-os-server.yml

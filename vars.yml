@@ -1,0 +1,13 @@
+---
+
+port_config:
+  port_name: "vib_port_1"
+  network_name: "IQTODCN"
+  ip_address: "10.27.151.200"
+  security_group: "internal-allow-all"
+
+server:
+  name: vib2-infra-services
+  image: infra-services-1
+  flavor: m1.medium-4
+  nics: "port-name={{ port_config.port_name }}"

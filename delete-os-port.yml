@@ -1,0 +1,15 @@
+---
+
+- hosts: all
+  vars:
+    ansible_python_interpreter: "/usr/bin/env python"
+  tasks:
+   - name: Delete a port
+     os_port:
+       state: absent
+       auth:
+         auth_url: "{{ odcn.auth_url }}"
+         username: "{{ odcn.username }}"
+         password: "{{ odcn.password }}"
+         project_name: "{{ odcn.project_name }}"
+       name: "{{ port_config.port_name }}"
