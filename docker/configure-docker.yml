@@ -1,0 +1,27 @@
+---
+
+  - name: Install docker
+    yum: name=docker-ce state=latest
+    become: true
+    notify: restart docker
+
+  - name: Configure docker
+    lineinfile:
+      dest: /usr/lib/systemd/system/docker.service
+      regexp: "^ExecStart=/usr/bin/dockerd$"
+      backrefs: yes
+      state: present
+      line: "ExecStart=/usr/bin/dockerd -s {{ docker.daemon_config.storage_driver }} -H unix:///var/run/docker.sock --dns {{ docker.daemon_config.dns1 }} --dns {{ docker.daemon_config.dns2 }} --insecure-registry {{ docker.daemon_config.insecure_registry }}"
+    become: true
+    notify: restart docker
+
+
+  - name: Install docker-compose
+    get_url:
+      url: "https://github.com/docker/compose/releases/download/{{ docker.compose.version }}/docker-compose-Linux-x86_64"
+      dest: "/bin/docker-compose"
+      mode: 0755
+    become: true
+
+  - name: Ensure docker network exists
+    shell: docker network create -d {{ docker.network.driver }} --subnet={{ docker.network.subnet }} --gateway={{ docker.network.gateway }} -o parent={{ docker.network.parent_interface }} {{ docker.network_name }} || true

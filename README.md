@@ -1,13 +1,20 @@
-#### To create the infra services VM (and port) run:
+#### Provision nfs server
 
 ```
-ansible-playbook -i "127.0.0.1," create-os-all.yml  --extra-vars=@infra-vars.yml \
-                 --extra-vars='{"odcn": {"auth_url": "<os auth url>", "username": "<os username>", "password": "<os password>", "project_name": "ICTU"}}'
+ansible-playbook -i "127.0.0.1," provision-nfs.yml  --extra-vars=@var/nfs-vars.yml \
+                 --extra-vars=@auth.yml
 ```
 
-#### To create the NFS VM (and port) run:
+#### Provision infra server
 
 ```
-ansible-playbook -i "127.0.0.1," create-os-all.yml  --extra-vars=@nfs-vars.yml \
-                 --extra-vars='{"odcn": {"auth_url": "<os auth url>", "username": "<os username>", "password": "<os password>", "project_name": "ICTU"}}'
+ansible-playbook -i "127.0.0.1," provision-infra-services.yml  --extra-vars=@var/infra-vars.yml \
+                 --extra-vars=@auth.yml
+```
+
+#### Provision compute node
+
+```
+ansible-playbook -i "127.0.0.1," provision-compute-node.yml  --extra-vars=@var/node-vars.yml \
+                 --extra-vars=@auth.yml
 ```

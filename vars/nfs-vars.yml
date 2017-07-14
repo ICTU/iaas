@@ -1,0 +1,35 @@
+---
+
+port_config:
+  port_name: "vib_port_nfs2"
+  network_name: "IQTODCN"
+  ip_address: "10.27.151.251"
+  no_security_groups: "yes"
+  port_security_enabled: "false"
+
+server:
+  name: vib-nfs2
+  image: infra-services-v3
+  flavor: m1.medium-4
+  nics: "port-name={{ port_config.port_name }}"
+
+docker:
+  daemon_config:
+    dns1: 10.25.55.2
+    dns2: 10.25.55.2
+    insecure_registry: 10.0.0.0/8
+    storage_driver: overlay2
+  compose:
+    version: 1.14
+  network:
+    name: vib-odcn
+    driver: macvlan
+    subnet: 10.27.151.0/24
+    gateway: 10.27.151.254
+    parent_interface: eth0
+
+nfs:
+  ip: 10.27.151.250
+  exports: [
+  '/exports/data 10.27.151.0/24(rw,sync,no_root_squash,no_all_squash)'
+  ]

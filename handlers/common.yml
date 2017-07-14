@@ -1,0 +1,12 @@
+---
+  - name: restart docker
+    shell: systemctl daemon-reload && systemctl restart docker
+    become: true
+
+  - name: restart nfs
+    service: name=nfs-server state=restarted
+    become: true
+    when: nfs.exports|length
+
+  - name: restart remotefs
+    shell: docker-compose -f /home/core/remotefs/docker-compose.yml down && docker-compose -f /home/core/remotefs/docker-compose.yml up -d
