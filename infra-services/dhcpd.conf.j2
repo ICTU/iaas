@@ -1,0 +1,40 @@
+log-facility local7;
+allow booting;
+allow bootp;
+option option-128 code 128 = string;
+option option-129 code 129 = text;
+option domain-name-servers {{ dhcpd.nameservers }};
+option routers {{ dhcpd.gateway }};
+default-lease-time {{ dhcpd.default_lease_time }};
+max-lease-time {{ dhcpd.max_lease_time }};
+allow duplicates;
+next-server {{ dhcpd.ip }};
+filename "/pxelinux.0";
+
+class "pxe" {
+        match if binary-to-ascii(16, 8, ":", substring (hardware, 1, 3)) = "{{ dhcpd.pxepool_macprefix }}";
+}
+
+subnet {{ dhcpd.subnet }} netmask {{ dhcpd.netmask }} {
+  pool {
+    # This pool is dedicated for pxe booted servers
+    allow members of "pxe";
+    range {{ dhcpd.range_pxe }};
+  }
+
+  pool {
+    # Don't use this pool. It is really just a range to reserve
+    # for fixed addresses defined per host, above.
+    allow known-clients;
+    range {{ dhcpd.range_static }};
+  }
+
+  pool {
+    # This pool is dedicated for all other clients
+    allow unknown-clients;
+    range {{ dhcpd.range_other }};
+  }
+}
+
+# known-clients
+include "/data/dhcpd-reservations.conf";

@@ -1,0 +1,18 @@
+version: '2'
+
+services:
+  dhcpd:
+    image: {{ dhcpd.image }}
+    restart: always
+    networks:
+      public:
+        ipv4_address: {{ dhcpd.ip }}
+    volumes:
+      - "/etc/localtime:/etc/localtime"
+      - "{{ dhcpd.data_dir }}/:/data/"
+      - "{{ dhcpd.data_dir }}/dhcpd.conf:/etc/dhcpd.conf"
+
+networks:
+  public:
+    external:
+      name: {{ docker.network.name }}

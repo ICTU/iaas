@@ -22,8 +22,8 @@
   - meta: flush_handlers
 
   - name: Ensure remotefs install directory exists
-    file: path=/home/core/remotefs state=directory
+    file: path={{ remotefs.data_dir }} state=directory
 
   - name: Install remotefs service
-    copy: src=docker-compose-remotefs.yml dest=/home/core/remotefs/docker-compose.yml
+    copy: src=docker-compose-remotefs.yml dest={{ remotefs.data_dir }}/docker-compose.yml
     notify: restart remotefs

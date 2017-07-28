@@ -1,0 +1,11 @@
+.:53 {
+  etcd {% for domain in dns.domain %}{{ domain }}{% if not loop.last %} {% endif %}{% endfor %} {
+    stubzones
+    path /skydns
+    endpoint http://{{ etcd.ip }}:4001
+    upstream {{ dns.proxy_nameservers }}
+  }
+  cache 60 {% for domain in dns.domain %}{{ domain }}{% if not loop.last %} {% endif %}{% endfor %}
+
+  proxy . {{ dns.proxy_nameservers }}
+}

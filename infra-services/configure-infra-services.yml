@@ -1,0 +1,49 @@
+---
+  - name: Ensure etcd directory exists
+    file: path="{{ etcd.data_dir }}" state=directory mode=0755
+
+  - name: Ensure etcd docker-compose file exists
+    template: src=docker-compose-etcd.yml.j2 dest="{{ etcd.data_dir }}/docker-compose.yml"
+    notify: restart etcd
+
+  - meta: flush_handlers
+
+  - name: Ensure coredns directory exists
+    file: path={{ dns.data_dir }} state=directory mode=0755
+
+  - name: Ensure coredns docker-compose file exists
+    template: src=docker-compose-coredns.yml.j2 dest="{{ dns.data_dir }}/docker-compose.yml"
+    notify: restart dns
+
+  - name: Ensure corefile exists
+    template: src=Corefile.j2 dest="{{ dns.data_dir}}/Corefile"
+    notify: restart dns
+
+  - name: Set stubzone configuration for subdomain in .ictu nameservers (1)
+    shell: curl -sS -XPUT {{ common.parent_etcd_url }}/v2/keys/skydns/ictu/dns/stub/{{ item.split('.') | reverse | join('/') }}/ns1 -d value='{"host":"{{dns.dns1.ip}}"}'
+    delegate_to: localhost
+    with_items: "{{ dns.domain }}"
+
+  - name: Set stubzone configuration for subdomain in .ictu nameservers (2)
+    shell: curl -sS -XPUT {{ common.parent_etcd_url }}/v2/keys/skydns/ictu/dns/stub/{{ item.split('.') | reverse | join('/') }}/ns2 -d value='{"host":"{{dns.dns2.ip}}"}'
+    delegate_to: localhost
+    with_items: "{{ dns.domain }}"
+
+  - meta: flush_handlers
+
+  - name: Ensure dhcpd directory exists
+    file: path="{{ dhcpd.data_dir }}" state=directory mode=0755
+
+  - name: Ensure dhcpd docker-compose file exists
+    template: src=docker-compose-dhcpd.yml.j2 dest="{{ dhcpd.data_dir }}/docker-compose.yml"
+    notify: restart dhcpd
+
+  - name: Ensure dhcpd.conf exists
+    template: src=dhcpd.conf.j2 dest="{{ dhcpd.data_dir }}/dhcpd.conf"
+    notify: restart dhcpd
+
+  - name: Ensure dhcpd-reservations.conf exists
+    copy: src=dhcpd-reservations.conf dest="{{ dhcpd.data_dir }}/dhcpd-reservations.conf"
+    notify: restart dhcpd
+
+  - meta: flush_handlers

@@ -1,0 +1,29 @@
+version: '2'
+
+services:
+  dns1:
+    image: "{{ dns.image }}"
+    restart: "always"
+    command: -conf /corefiles/Corefile
+    networks:
+      public:
+        ipv4_address: {{ dns.dns1.ip }}
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "{{ dns.data_dir }}:/corefiles"
+
+  dns2:
+    image: "coredns/coredns:008"
+    command: -conf /corefiles/Corefile
+    restart: "always"
+    networks:
+      public:
+        ipv4_address: {{ dns.dns2.ip }}
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "{{ dns.data_dir }}:/corefiles"
+
+networks:
+  public:
+    external:
+      name: {{ docker.network.name }}

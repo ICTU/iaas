@@ -1,10 +1,34 @@
 ---
 
-- hosts: all
+- hosts: localhost
   vars:
     ansible_python_interpreter: "/usr/bin/env python"
   tasks:
     - include: openstack/create-os-port.yml
     - include: openstack/create-os-server.yml
+    - name: Wait for instance to come online
+      wait_for:
+        port: 22
+        host: "{{ port_config.ip_address }}"
+        delay: 5
+        timeout: 600
+    - name: Add server to inventory
+      add_host:
+        name: infra-server
+        groups: infra-servers
+        ansible_host: "{{ port_config.ip_address }}"
+
+  handlers:
+    - include: handlers/common.yml
+
+- hosts: infra-server
+  remote_user: core
+  vars:
+    ansible_python_interpreter: "/usr/bin/env python"
+
+  tasks:
     - include: docker/configure-docker.yml
     - include: infra-services/configure-infra-services.yml
+
+  handlers:
+    - include: handlers/common.yml

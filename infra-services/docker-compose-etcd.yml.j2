@@ -1,0 +1,13 @@
+version: '2'
+services:
+  node1:
+    image: {{ etcd.image }}
+    networks:
+      public:
+        ipv4_address: {{ etcd.ip }}
+    command: "-name node1 -advertise-client-urls http://{{ etcd.ip }}:2379,http://{{ etcd.ip }}:4001 -listen-client-urls http://0.0.0.0:2379,http://0.0.0.0:4001 -initial-advertise-peer-urls http://0.0.0.0:2380 -listen-peer-urls http://0.0.0.0:2380 -initial-cluster-token etcd-cluster-1 -initial-cluster node1=http://0.0.0.0:2380 -initial-cluster-state new"
+
+networks:
+  public:
+    external:
+      name: {{ docker.network.name }}
