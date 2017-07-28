@@ -1,0 +1,14 @@
+---
+
+port_config:
+  port_name: ""
+  network_name: ""
+  ip_address: ""
+  no_security_groups: ""
+  port_security_enabled: ""
+
+server:
+  name: ""
+  image: ""
+  flavor: ""
+  nics: "port-name={{ port_config.port_name }}"

@@ -1,7 +1,7 @@
 #### Provision nfs server
 
 ```
-ansible-playbook -i "127.0.0.1," provision-nfs.yml  --extra-vars=@var/nfs-vars.yml \
+ansible-playbook provision-nfs.yml  --extra-vars=@var/nfs-vars.yml \
                  --extra-vars=@auth.yml
 ```
 

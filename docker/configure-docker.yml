@@ -1,9 +1,30 @@
 ---
+  - name: Install epel-release
+    yum: name=epel-release state=latest
+    become: true
+
+  - name: Install docker dependencies
+    yum: name={{ item }} state=latest
+    with_items:
+      - python
+      - python-pip
+    become: true
 
   - name: Install docker
     yum: name=docker-ce state=latest
     become: true
     notify: restart docker
+
+  - name: Install docker-py
+    pip: name=docker-py
+    become: true
+
+  - name: Ensure core user is in docker group
+    user:
+      name: core
+      groups: docker
+      append: yes
+    become: true
 
   - name: Configure docker
     lineinfile:
@@ -15,6 +36,18 @@
     become: true
     notify: restart docker
 
+  - meta: flush_handlers
+
+  - name: Ensure docker network exists
+    docker_network:
+      name: "{{ docker.network.name }}"
+      driver: "{{ docker.network.driver }}"
+      ipam_options:
+        subnet: "{{ docker.network.subnet }}"
+        gateway: "{{ docker.network.gateway }}"
+      driver_options:
+        parent: "{{ docker.network.parent_interface }}"
+      state: present
 
   - name: Install docker-compose
     get_url:
@@ -22,6 +55,3 @@
       dest: "/bin/docker-compose"
       mode: 0755
     become: true
-
-  - name: Ensure docker network exists
-    shell: docker network create -d {{ docker.network.driver }} --subnet={{ docker.network.subnet }} --gateway={{ docker.network.gateway }} -o parent={{ docker.network.parent_interface }} {{ docker.network_name }} || true

@@ -1,3 +1,6 @@
 node_modules/
 *.retry
 auth.yml
+vars/nfs-vars.yml
+vars/node-vars.yml
+vars/infra-vars.yml

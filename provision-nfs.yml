@@ -1,14 +1,30 @@
 ---
 
-- hosts: all
+- hosts: localhost
+  gather_facts: false
   vars:
     ansible_python_interpreter: "/usr/bin/env python"
 
   tasks:
     - include: openstack/create-os-port.yml
     - include: openstack/create-os-server.yml
+    - name: Add nfs-server to inventory
+      add_host:
+        name: nfs-server
+        groups: nfs-servers
+        ansible_host: "{{ port_config.ip_address }}"
+
+  handlers:
+    - include: handlers/common.yml
+
+- hosts: nfs-server
+  remote_user: core
+  vars:
+    ansible_python_interpreter: "/usr/bin/env python"
+
+  tasks:
     - include: docker/configure-docker.yml
-    # - include: nfs/configure-nfs.yml
+    - include: nfs/configure-nfs.yml
 
   handlers:
     - include: handlers/common.yml

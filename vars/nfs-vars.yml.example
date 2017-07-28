@@ -1,0 +1,35 @@
+---
+
+port_config:
+  port_name: ""
+  network_name: ""
+  ip_address: ""
+  no_security_groups: ""
+  port_security_enabled: ""
+
+server:
+  name: ""
+  image: ""
+  flavor: ""
+  nics: ""
+
+docker:
+  daemon_config:
+    dns1: ""
+    dns2: ""
+    insecure_registry: ""
+    storage_driver: ""
+  compose:
+    version: ""
+  network:
+    name: ""
+    driver: ""
+    subnet: ""
+    gateway: ""
+    parent_interface: ""
+
+nfs:
+  ip: ""
+  exports: [
+  '/exports/data 1.2.3.4/24(rw,sync,no_root_squash,no_all_squash)'
+  ]
