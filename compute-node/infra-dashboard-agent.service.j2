@@ -1,0 +1,53 @@
+[Unit]
+Description=dashboard agent for infra board
+After=docker.service
+
+[Service]
+Restart=on-failure
+RestartSec=60s
+Environment="IMAGE_NAME={{ agent.image }}"
+Environment="AUTH_TOKEN={{ agent.auth_token }}"
+Environment="COMPOSE_HTTP_TIMEOUT={{ agent.compose_http_timeout }}"
+Environment="DATA_DIR={{ agent.data_dir }}"
+Environment="DOMAIN={{ agent.domain }}"
+Environment="HTTP_PORT={{ agent.http_port }}"
+Environment="PIPEWORK_CMD='{{ agent.pipework_cmd }}'"
+Environment="MQTT_URL={{ agent.mqtt_url }}"
+Environment="MQTT_USER={{ agent.mqtt_user }}"
+Environment="MQTT_PASS={{ agent.mqtt_pass }}"
+Environment="NETWORK_HEALTHCHECK_RETRIES={{ agent.network_healthcheck_retries }}"
+Environment="NETWORK_IMAGE={{ agent.network_image }}"
+Environment="NETWORK_SCAN_ENABLED={{ agent.network_scan_enabled }}"
+Environment="REMOTEFS_URL={{ agent.remotefs_url }}"
+Environment="SCRIPT_BASE_DIR={{ agent.script_base_dir }}"
+Environment="TLD={{ agent.tld }}"
+ExecStartPre=-/usr/bin/bash -c "/usr/bin/docker rm -v dashboard-agent-infra || true"
+ExecStartPre=-/usr/bin/docker pull ${IMAGE_NAME}
+ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /shared/data:/shared/data \
+  -v /local/data:/local/data \
+  -v /mnt/data:/mnt/data \
+  --net=host \
+  -e AUTH_TOKEN=${AUTH_TOKEN} \
+  -e COMPOSE_HTTP_TIMEOUT=${COMPOSE_HTTP_TIMEOUT} \
+  -e DATA_DIR=${DATA_DIR} \
+  -e DOMAIN=${DOMAIN} \
+  -e HTTP_PORT=${HTTP_PORT} \
+  -e MQTT_URL=${MQTT_URL} \
+  -e MQTT_USER=${MQTT_USER} \
+  -e MQTT_PASS=${MQTT_PASS} \
+  -e NETWORK_HEALTHCHECK_RETRIES=${NETWORK_HEALTHCHECK_RETRIES} \
+  -e NETWORK_IMAGE=${NETWORK_IMAGE} \
+  -e NETWORK_SCAN_ENABLED=${NETWORK_SCAN_ENABLED} \
+  -e PIPEWORKS_CMD=${PIPEWORK_CMD} \
+  -e REMOTEFS_URL=${REMOTEFS_URL} \
+  -e SCRIPT_BASE_DIR=${SCRIPT_BASE_DIR} \
+  -e TLD=${TLD} \
+  --name dashboard-agent-infra \
+  ${IMAGE_NAME}"
+ExecStop=-/usr/bin/bash -c "/usr/bin/docker stop dashboard-agent-infra || true"
+ExecStopPost=-/usr/bin/bash -c "/usr/bin/docker rm -v dashboard-agent-infra || true"
+
+[Install]
+WantedBy=multi-user.target

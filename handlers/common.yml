@@ -19,3 +19,43 @@
 
   - name: restart dhcpd
     shell: docker-compose -f {{ dhcpd.data_dir }}/docker-compose.yml down && docker-compose -f {{ dhcpd.data_dir }}/docker-compose.yml up -d
+
+  - name: restart plumber
+    systemd:
+      name: plumber
+      enabled: yes
+      daemon_reload: yes
+      state: restarted
+    become: true
+
+  - name: restart dashboard agent
+    systemd:
+      name: infra-dashboard-agent
+      enabled: yes
+      daemon_reload: yes
+      state: restarted
+    become: true
+
+  - name: restart dashboard publisher
+    systemd:
+      name: infra-dashboard-publisher
+      enabled: yes
+      daemon_reload: yes
+      state: restarted
+    become: true
+
+  - name: restart logspout
+    systemd:
+      name: logspout
+      enabled: yes
+      daemon_reload: yes
+      state: restarted
+    become: true
+
+  - name: restart dnsreg
+    systemd:
+      name: dnsreg
+      enabled: yes
+      daemon_reload: yes
+      state: restarted
+    become: true

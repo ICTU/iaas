@@ -1,0 +1,32 @@
+[Unit]
+Description=Bigboat publisher for infra board
+After=docker.service
+
+[Service]
+Restart=on-failure
+RestartSec=60s
+Environment="DOCKER_HOST=unix:///var/run/docker.sock"
+Environment="DOCKER_IMAGE={{ publisher.image }}"
+Environment="MQTT_URL={{ publisher.mqtt_url }}"
+Environment="MQTT_TOPIC_NS={{ publisher.mqtt_topic_ns }}"
+Environment="MQTT_USER={{ publisher.mqtt_user }}"
+Environment="MQTT_PASS={{ publisher.mqtt_pass }}"
+Environment="DOCKER_EVENTS_FILTER={{ publisher.docker_events_filter }}"
+ExecStartPre=-/usr/bin/bash -c "/usr/bin/docker rm -v dashboard-publisher-infra || true"
+ExecStartPre=-/usr/bin/docker pull ${DOCKER_IMAGE}
+ExecStart=/usr/bin/bash -c "/usr/bin/docker run \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  --net=host \
+  -e DOCKER_HOST=${DOCKER_HOST} \
+  -e MQTT_URL=${MQTT_URL} \
+  -e MQTT_TOPIC_NS=${MQTT_TOPIC_NS} \
+  -e DOCKER_EVENTS_FILTER=${DOCKER_EVENTS_FILTER} \
+  -e MQTT_USER=${MQTT_USER} \
+  -e MQTT_PASS=${MQTT_PASS} \
+  --name dashboard-publisher-infra \
+  ${DOCKER_IMAGE}"
+ExecStop=-/usr/bin/bash -c "/usr/bin/docker stop dashboard-publisher-infra || true"
+ExecStopPost=-/usr/bin/bash -c "/usr/bin/docker rm -v dashboard-publisher-infra || true"
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,10 @@
+[Unit]
+Description=Logspout
+After=docker.service
+[Service]
+Restart=on-failure
+RestartSec=60s
+ExecStartPre=-/usr/bin/docker rm logspout
+ExecStart=/usr/bin/docker run --name=logspout -v /etc/localtime:/etc/localtime -v /var/run/docker.sock:/var/run/docker.sock --net=host -e ROUTE_URIS=logstash://logstash.isd.ictu:5454 ictu/logspout:latest
+ExecStop=-/usr/bin/docker stop logspout
+ExecStopPost=-/usr/bin/docker rm logspout

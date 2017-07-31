@@ -1,0 +1,11 @@
+[Unit]
+Description=Service discovery agent
+After=docker.service
+
+[Service]
+Restart=on-failure
+RestartSec=60s
+ExecStartPre=-/usr/bin/docker rm -v dnsreg
+ExecStart=/usr/bin/docker run --name=dnsreg -v /etc/localtime:/etc/localtime -v /var/run/dnsreg:/var/run/dnsreg -e SOCKET_PATH=/var/run/dnsreg/dnsreg.sock -e ETCD_URL={{ dnsreg.etcd_url }} -e ETCD_BASE_KEY=/skydns ictu/dnsreg
+ExecStop=-/usr/bin/docker stop dnsreg
+ExecStopPost=-/usr/bin/docker rm dnsreg

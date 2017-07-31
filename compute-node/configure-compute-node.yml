@@ -1,0 +1,39 @@
+---
+
+  - name: Ensure data directories exists
+    file: path="{{ nfs.data_dir }}" state=directory mode=0755
+    become: true
+
+  - name: Ensure mount to shared datastore
+    mount:
+      name: "{{ nfs.data_dir }}"
+      src: "{{ nfs.dev }}"
+      fstype: nfs4
+      state: mounted
+      boot: yes
+    become: true
+
+  - name: Ensure plumber.service file exists
+    template: src=plumber.service.j2 dest=/etc/systemd/system/plumber.service
+    notify: restart plumber
+    become: true
+
+  - name: Ensure dnsreg.service file exists
+    template: src=dnsreg.service.j2 dest=/etc/systemd/system/dnsreg.service
+    notify: restart dnsreg
+    become: true
+
+  - name: Ensure logspout.service file exists
+    template: src=logspout.service.j2 dest=/etc/systemd/system/logspout.service
+    notify: restart logspout
+    become: true
+
+  - name: Ensure infra-dashboard-agent.service file exists
+    template: src=infra-dashboard-agent.service.j2 dest=/etc/systemd/system/infra-dashboard-agent.service
+    notify: restart dashboard agent
+    become: true
+
+  - name: Ensure infra-dashboard-publisher.service file exists
+    template: src=infra-dashboard-publisher.service.j2 dest=/etc/systemd/system/infra-dashboard-publisher.service
+    notify: restart dashboard publisher
+    become: true
