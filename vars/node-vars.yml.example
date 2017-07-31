@@ -1,14 +1,62 @@
 ---
 
 port_config:
-  port_name: ""
-  network_name: ""
-  ip_address: ""
-  no_security_groups: ""
-  port_security_enabled: ""
+  port_name: "port-node1"
+  network_name: "network1"
+  ip_address: "192.168.1.21"
+  no_security_groups: "yes"
+  port_security_enabled: "false"
 
 server:
-  name: ""
-  image: ""
-  flavor: ""
+  name: node1-serv
+  image: node1-serv-img
+  flavor: m1.medium-4
   nics: "port-name={{ port_config.port_name }}"
+
+docker:
+  daemon_config:
+    dns1: 10.0.1.1
+    dns2: 10.0.1.2
+    insecure_registry: 10.0.0.0/8
+    storage_driver: overlay2
+  compose:
+    version: 1.15.0
+  network:
+    name: dock-net-1
+    driver: macvlan
+    subnet: 10.0.2.0/24
+    gateway: 10.0.2.254
+    parent_interface: eth0
+
+nfs:
+  dev: "10.0.2.250:/exports/data"
+  data_dir: "/external/data"
+
+agent:
+  image: "ictu/bigboat-agent-compose:3.2.1"
+  auth_token: "1234"
+  compose_http_timeout: "600"
+  data_dir: "/external/data"
+  domain: "infra"
+  http_port: 8080
+  pipework_cmd: "eth0 -i eth0 @CONTAINER_NAME@ 0/0"
+  mqtt_url: "mqtt://mqtt.dev.local"
+  mqtt_user: "infra"
+  mqtt_pass: "1234"
+  network_healthcheck_retries: 60
+  network_image: "ictu/pipes:2"
+  network_scan_enabled: false
+  remotefs_url: "http://10.0.2.250:8000"
+  script_base_dir: "/external/data/scripts"
+  tld: "local"
+
+publisher:
+  image: "ictu/bigboat-docker-publisher:1"
+  mqtt_url: "mqtt://mqtt.dev.local"
+  mqtt_user: "infra"
+  mqtt_pass: "1234"
+  mqtt_topic_ns: "/docker"
+  docker_events_filter: "'{ \\\"label\\\": [ \\\"bigboat.domain=infra\\\" ] }'"
+
+dnsreg:
+  etcd_url: "http://10.0.2.5:4001"

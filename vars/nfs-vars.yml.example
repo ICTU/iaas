@@ -1,35 +1,38 @@
 ---
 
 port_config:
-  port_name: ""
-  network_name: ""
-  ip_address: ""
-  no_security_groups: ""
-  port_security_enabled: ""
+  port_name: "port-nfs"
+  network_name: "network1"
+  ip_address: "192.168.1.250"
+  no_security_groups: "yes"
+  port_security_enabled: "false"
 
 server:
-  name: ""
-  image: ""
-  flavor: ""
-  nics: ""
+  name: nfs-serv
+  image: nfs-serv-img
+  flavor: m1.medium-4
+  nics: "port-name={{ port_config.port_name }}"
 
 docker:
   daemon_config:
-    dns1: ""
-    dns2: ""
-    insecure_registry: ""
-    storage_driver: ""
+    dns1: 10.0.1.1
+    dns2: 10.0.1.2
+    insecure_registry: 10.0.0.0/8
+    storage_driver: overlay2
   compose:
-    version: ""
+    version: 1.15.0
   network:
-    name: ""
-    driver: ""
-    subnet: ""
-    gateway: ""
-    parent_interface: ""
+    name: dock-net-1
+    driver: macvlan
+    subnet: 10.0.2.0/24
+    gateway: 10.0.2.254
+    parent_interface: eth0
+
+remotefs:
+  data_dir: /home/core/remotefs
 
 nfs:
-  ip: ""
+  ip: 10.0.2.250
   exports: [
-  '/exports/data 1.2.3.4/24(rw,sync,no_root_squash,no_all_squash)'
+  '/exports/data 10.0.2.0/24(rw,sync,no_root_squash,no_all_squash)'
   ]
