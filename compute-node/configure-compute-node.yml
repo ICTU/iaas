@@ -1,4 +1,7 @@
 ---
+  - name: Ensure nfs-utils is installed
+    yum: name=nfs-utils state=latest
+    become: true
 
   - name: Ensure data directories exists
     file: path="{{ nfs.data_dir }}" state=directory mode=0755
